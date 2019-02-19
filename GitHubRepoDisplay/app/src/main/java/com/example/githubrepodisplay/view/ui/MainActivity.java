@@ -10,33 +10,23 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.githubrepodisplay.service.dataRepository.Crud;
-import com.example.githubrepodisplay.service.model.UserDB;
-import com.example.githubrepodisplay.service.apiRepository.Api;
 import com.example.githubrepodisplay.service.apiRepository.ApiInterface;
-import com.example.githubrepodisplay.service.apiRepository.AppExecutor;
-import com.example.githubrepodisplay.service.dataRepository.UserDBClient;
 import com.example.githubrepodisplay.view.adapter.HorizontalAdapter;
 import com.example.githubrepodisplay.service.model.Items;
 import com.example.githubrepodisplay.R;
-import com.example.githubrepodisplay.service.model.UsersList;
-import com.example.githubrepodisplay.service.apiRepository.Utils;
+import com.example.githubrepodisplay.service.utils.Utils;
 import com.example.githubrepodisplay.view.adapter.VerticalAdapter;
 import com.example.githubrepodisplay.viewModel.GitViewModel;
+import com.example.githubrepodisplay.viewModel.remote.RemoteRespository;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements VerticalAdapter.IMethodCaller, HorizontalAdapter.CallDifferentUserLists {
     RecyclerView horiRecyclerView, verRecyclerView;
@@ -51,10 +41,10 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
     ApiInterface apiInterface;
-    UsersList user;
-    List<Items> usersLists, databaseList;
     private GitViewModel gitViewModel;
-    Crud crud;
+    RemoteRespository remoteResponse;
+    List<Items> uItemsList;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +54,10 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
 
         setContentView(R.layout.activity_main);
 
-        apiInterface = Api.getClient();
+        //remoteResponse = new RemoteRespository(this);
 
         textView = findViewById(R.id.notification);
 
-        crud = new Crud(this);
 
         List<String> list1 = new ArrayList<String>();
         list1.add("JAVA");
@@ -119,36 +108,15 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
                 verticalAdapter.addItems(items);
             }
         });
-
-
+        
     }
 
-    public void getUsersList(String string){
-        final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+    public void getProgressBar(){
+        progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Please Wait Sometime...");
         progressDialog.show();
-
-        apiInterface.getUsersList(string).enqueue(new Callback<UsersList>() {
-            @Override
-            public void onResponse(Call<UsersList> call, Response<UsersList> response) {
-                user = response.body();
-                usersLists = user.getItems();
-                crud.insertData(usersLists);
-                progressDialog.dismiss();
-
-            }
-
-            @Override
-            public void onFailure(Call<UsersList> call, Throwable t) {
-                Toast.makeText(MainActivity.this, t.toString(), Toast.LENGTH_LONG).show();
-                Log.e("roh",t.toString());
-                progressDialog.dismiss();
-            }
-        });
-
     }
-    
 
     @Override
     public void onClickNotify() {
@@ -159,48 +127,48 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
     @Override
     public void onClickJavaList() {
         Toast.makeText(getApplicationContext(),"Java",Toast.LENGTH_SHORT).show();
-        getUsersList("language:java");
+      gitViewModel.fetchUserList(this,"language:java");
     }
 
     @Override
     public void onClickJsList() {
         Toast.makeText(getApplicationContext(),"JavaScript",Toast.LENGTH_SHORT).show();
-        getUsersList("language:js");
+        gitViewModel.fetchUserList(this,"language:js");
     }
 
     @Override
     public void onClickKotlinList() {
         Toast.makeText(getApplicationContext(),"Kotlin",Toast.LENGTH_SHORT).show();
-        getUsersList("language:kotlin");
+        gitViewModel.fetchUserList(this,"language:kotlin");
     }
 
     @Override
     public void onClickSwiftList() {
         Toast.makeText(getApplicationContext(),"Swift",Toast.LENGTH_SHORT).show();
-        getUsersList("language:swift");
+        gitViewModel.fetchUserList(this,"language:swift");
     }
 
     @Override
     public void onClickPythonList() {
         Toast.makeText(getApplicationContext(),"Python",Toast.LENGTH_SHORT).show();
-        getUsersList("language:python");
+        gitViewModel.fetchUserList(this,"language:python");
     }
 
     @Override
     public void onClickCList() {
         Toast.makeText(getApplicationContext(),"C",Toast.LENGTH_SHORT).show();
-        getUsersList("language:c");
+        gitViewModel.fetchUserList(this,"language:c");
     }
 
     @Override
     public void onClickCppList() {
         Toast.makeText(getApplicationContext(),"Cpp",Toast.LENGTH_SHORT).show();
-        getUsersList("language:cpp");
+        gitViewModel.fetchUserList(this,"language:cpp");
     }
 
     @Override
     public void onClickAssemblyList() {
         Toast.makeText(getApplicationContext(),"Assembly",Toast.LENGTH_SHORT).show();
-        getUsersList("language:assembly");
+        gitViewModel.fetchUserList(this,"language:assembly");
     }
 }
