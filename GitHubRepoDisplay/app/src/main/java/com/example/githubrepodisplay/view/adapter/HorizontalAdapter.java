@@ -34,10 +34,10 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ho
         horizontalViewHolder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (position){
-                    case 0:
-                        ((CallDifferentUserLists)context).onClickJavaList();
-                        break;
+                /*switch (position){
+                    case 0:*/
+                        ((CallDifferentUserLists)context).onClickJavaList(position);
+                    /*    break;
                     case 1:
                         ((CallDifferentUserLists)context).onClickPythonList();
                         break;
@@ -59,7 +59,7 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ho
                     case 7:
                         ((CallDifferentUserLists)context).onClickCList();
                         break;
-                }
+                }*/
 
             }
         });
@@ -80,13 +80,13 @@ public class HorizontalAdapter extends RecyclerView.Adapter<HorizontalAdapter.Ho
     }
 
     public interface CallDifferentUserLists{
-        public void onClickJavaList();
-        public void onClickJsList();
+        public void onClickJavaList(int position);
+        /*public void onClickJsList();
         public void onClickKotlinList();
         public void onClickSwiftList();
         public void onClickPythonList();
         public void onClickCList();
         public void onClickCppList();
-        public void onClickAssemblyList();
+        public void onClickAssemblyList();*/
     }
 }

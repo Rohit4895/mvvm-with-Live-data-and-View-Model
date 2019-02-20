@@ -1,6 +1,7 @@
 package com.example.githubrepodisplay.service.dataRepository;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
@@ -23,5 +24,5 @@ public interface UserDBDao {
     int update(UserDB userDB);
 
     @Query("select * from UserDB")
-    LiveData<List<Items>> getAll();
+    List<Items> getAll();
 }

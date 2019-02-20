@@ -19,8 +19,8 @@ import com.example.githubrepodisplay.service.model.Items;
 import java.util.List;
 
 public class VerticalAdapter extends RecyclerView.Adapter<VerticalAdapter.VerticalViewHolder> {
-    Context context;
-    List<Items> usersLists;
+    private Context context;
+    private List<Items> usersLists;
 
     public VerticalAdapter(Context context, List<Items> usersLists) {
         this.context = context;
@@ -60,10 +60,20 @@ public class VerticalAdapter extends RecyclerView.Adapter<VerticalAdapter.Vertic
 
     @Override
     public int getItemCount() {
+        if(usersLists == null){
+            return 0;
+        }
         return usersLists.size();
     }
 
+    //This methode will append new List to existing items
     public void addItems(List<Items> itemsList){
+        usersLists.addAll(itemsList);
+        notifyDataSetChanged();
+    }
+
+    //This methode will replace new List to existing items
+    public void replaceItems(List<Items> itemsList){
         usersLists = itemsList;
         notifyDataSetChanged();
     }

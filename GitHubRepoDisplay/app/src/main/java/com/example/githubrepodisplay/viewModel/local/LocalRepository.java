@@ -1,7 +1,12 @@
 package com.example.githubrepodisplay.viewModel.local;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
+import android.support.annotation.Nullable;
 
+import com.example.githubrepodisplay.service.dataRepository.UserDBDao;
 import com.example.githubrepodisplay.service.utils.AppExecutor;
 import com.example.githubrepodisplay.service.dataRepository.UserDBClient;
 import com.example.githubrepodisplay.service.model.Items;
@@ -17,13 +22,15 @@ public class LocalRepository {
         this.context = context;
     }
 
-    public void insertData(final List<Items> itemsList){
+    public void insertData(final List<Items> itemsList, final LocalRepoCallBack callBack){
         AppExecutor.getInstance().getDiskIO().execute(new Runnable() {
             @Override
             public void run() {
 
                 deleteAllData();
 
+                UserDBDao userDBDao = UserDBClient.getInstance(context).getUserDBDatabase()
+                        .userDBDao();
                 for (int i=0; i<itemsList.size(); i++) {
                     UserDB userDB = new UserDB();
                     Items item = itemsList.get(i);
@@ -40,18 +47,50 @@ public class LocalRepository {
                     userDB.setStarredUrl(item.getStarredUrl());
                     userDB.setUrl(item.getUrl());
 
-                    UserDBClient.getInstance(context).getUserDBDatabase()
-                            .userDBDao()
-                            .insert(userDB);
-                }
+                    userDBDao.insert(userDB);
 
+
+                }
+                AppExecutor.getInstance().getMainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        callBack.isSuccess(true);
+
+                    }
+                });
             }
         });
 
     }
 
+    public void getData(final GetDataCallBack<List<Items>> callBack){
+
+        AppExecutor.getInstance().getDiskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                final List<Items> liveList = UserDBClient.getInstance(context)
+                        .getUserDBDatabase().userDBDao().getAll();
+
+                AppExecutor.getInstance().getMainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callBack.getAll(liveList);
+                    }
+                });
+            }
+        });
+    }
     public void deleteAllData(){
         UserDBClient.getInstance(context)
                 .getUserDBDatabase().userDBDao().deleteAll();
+    }
+
+    public interface LocalRepoCallBack{
+        void isSuccess(boolean success);
+    }
+
+    public interface GetDataCallBack<T>{
+        void getAll(T data);
     }
 }

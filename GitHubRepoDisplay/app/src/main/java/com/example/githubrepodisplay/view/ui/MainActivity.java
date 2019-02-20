@@ -1,6 +1,8 @@
 package com.example.githubrepodisplay.view.ui;
 
 import android.app.ProgressDialog;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,22 +32,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements VerticalAdapter.IMethodCaller, HorizontalAdapter.CallDifferentUserLists {
-    RecyclerView horiRecyclerView, verRecyclerView;
-    LinearLayoutManager linearLayoutManager;
-    HorizontalAdapter horizontalAdapter;
-    VerticalAdapter verticalAdapter;
-    Button addToCart;
-    TextView textView;
-    int count=0;
-    long result;
-    ImageView cart;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
-    ApiInterface apiInterface;
+
+    private RecyclerView horiRecyclerView, verRecyclerView;
+    private LinearLayoutManager linearLayoutManager;
+    private HorizontalAdapter horizontalAdapter;
+    private VerticalAdapter verticalAdapter;
+    private Button addToCart;
+    private TextView textView;
+    private int count=0;
+    private long result;
+    private ImageView cart;
+    private SharedPreferences sharedPreferences;
     private GitViewModel gitViewModel;
-    RemoteRespository remoteResponse;
-    List<Items> uItemsList;
-    ProgressDialog progressDialog;
+    private RemoteRespository remoteResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +53,6 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
         Utils.onActivityCreateSetTheme(this);
 
         setContentView(R.layout.activity_main);
-
-        //remoteResponse = new RemoteRespository(this);
 
         textView = findViewById(R.id.notification);
 
@@ -102,21 +100,17 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
 
         gitViewModel = ViewModelProviders.of(this).get(GitViewModel.class);
 
-        gitViewModel.getList().observe(MainActivity.this, new Observer<List<Items>>() {
+        LiveData<List<Items>> uItemsList = gitViewModel.getList();
+        uItemsList.observe(MainActivity.this, new Observer<List<Items>>() {
             @Override
             public void onChanged(@Nullable List<Items> items) {
-                verticalAdapter.addItems(items);
+                Log.d("WASTE","items: "+(items == null? 0 : items.size()));
+                verticalAdapter.replaceItems(items);
             }
         });
-        
     }
 
-    public void getProgressBar(){
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("Please Wait Sometime...");
-        progressDialog.show();
-    }
+
 
     @Override
     public void onClickNotify() {
@@ -125,50 +119,44 @@ public class MainActivity extends AppCompatActivity implements VerticalAdapter.I
     }
 
     @Override
-    public void onClickJavaList() {
-        Toast.makeText(getApplicationContext(),"Java",Toast.LENGTH_SHORT).show();
-      gitViewModel.fetchUserList(this,"language:java");
+    public void onClickJavaList(int position) {
+        switch (position){
+            case 0:
+                Toast.makeText(getApplicationContext(),"Java",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:java");
+                break;
+            case 1:
+                Toast.makeText(getApplicationContext(),"Python",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:python");
+
+                break;
+            case 2:
+                Toast.makeText(getApplicationContext(),"Cpp",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:cpp");
+                break;
+            case 3:
+                Toast.makeText(getApplicationContext(),"Kotlin",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:kotlin");
+                break;
+            case 4:
+                Toast.makeText(getApplicationContext(),"Assembly",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:assembly");
+                break;
+            case 5:
+                Toast.makeText(getApplicationContext(),"Swift",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:swift");
+                break;
+            case 6:
+                Toast.makeText(getApplicationContext(),"JavaScript",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:js");
+                break;
+            case 7:
+                Toast.makeText(getApplicationContext(),"C",Toast.LENGTH_SHORT).show();
+                gitViewModel.fetchUserList("language:c");
+
+                break;
+        }
+
     }
 
-    @Override
-    public void onClickJsList() {
-        Toast.makeText(getApplicationContext(),"JavaScript",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:js");
-    }
-
-    @Override
-    public void onClickKotlinList() {
-        Toast.makeText(getApplicationContext(),"Kotlin",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:kotlin");
-    }
-
-    @Override
-    public void onClickSwiftList() {
-        Toast.makeText(getApplicationContext(),"Swift",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:swift");
-    }
-
-    @Override
-    public void onClickPythonList() {
-        Toast.makeText(getApplicationContext(),"Python",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:python");
-    }
-
-    @Override
-    public void onClickCList() {
-        Toast.makeText(getApplicationContext(),"C",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:c");
-    }
-
-    @Override
-    public void onClickCppList() {
-        Toast.makeText(getApplicationContext(),"Cpp",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:cpp");
-    }
-
-    @Override
-    public void onClickAssemblyList() {
-        Toast.makeText(getApplicationContext(),"Assembly",Toast.LENGTH_SHORT).show();
-        gitViewModel.fetchUserList(this,"language:assembly");
-    }
 }

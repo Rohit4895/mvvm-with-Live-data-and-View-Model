@@ -16,39 +16,46 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.http.HTTP;
 
 public class RemoteRespository {
-    List<Items> usersLists;
-    Context context;
-    UsersList user;
-    LocalRepository localRepository;
+
+    private Context context;
 
     public RemoteRespository(Context context){
         this.context = context;
-        localRepository = new LocalRepository(context);
     }
 
     public void getUsersList(String string, final MyCall myCall){
-    /*   final ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("Please Wait Sometime...");
-        progressDialog.show();*/
+
 
         Api.getClient().getUsersList(string).enqueue(new Callback<UsersList>() {
             @Override
             public void onResponse(Call<UsersList> call, retrofit2.Response<UsersList> response) {
-                user = response.body();
-                usersLists = user.getItems();
-                (myCall).callBack(usersLists);
-                Log.d("list", usersLists.toString());
-                //localRepository.insertData(usersLists);
-                //progressDialog.dismiss();
+
+                if(response.code() != 200){
+                    myCall.callBack(null);
+                    return;
+
+                }
+
+                UsersList user = response.body();
+                if(user == null){
+                    myCall.callBack(null);
+                    return;
+                }
+
+                List<Items> usersLists = user.getItems();
+                myCall.callBack(usersLists);
+                Log.d("list", "userList: "+(usersLists == null ? 0 : usersLists.size()));
+
 
             }
 
             @Override
             public void onFailure(Call<UsersList> call, Throwable t) {
-               // progressDialog.dismiss();
+                myCall.callBack(null);
             }
         });
     }
